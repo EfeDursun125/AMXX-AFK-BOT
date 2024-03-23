@@ -8,6 +8,6 @@ This is AFK Bot amxmodx plugin for Counter Strike 1.6
 - amx_afk_manager_manual_afk "1" // can afk players be afk manually by using !afk command?, 1 = yes, 0 = no
 
 # Natives
-is_user_afk(id) = returns 1 if is user afk, 0 otherwise
-get_user_afk_time(id) = returns how long the player has been afk
-get_total_afk_count() = returns the number of afk players in the server
+- is_user_afk(id) // returns 1 if is user afk, 0 otherwise
+- get_user_afk_time(id) // returns how long the player has been afk
+- get_total_afk_count() // returns the number of afk players in the server

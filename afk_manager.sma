@@ -7,7 +7,7 @@
 #include <engine>
 #include <fun>
 #include <xs>
-#define PLUGIN_VERSION "0.1"
+#define PLUGIN_VERSION "0.2"
 
 // if you dont want to let server control players set this to false
 #define CONTROL_PLAYERS true
@@ -109,8 +109,7 @@ stock client_print_color(target, sender, const message[], any:...)
 		new cache = get_user_msgid("SayText")
 		new player
 		new changed[5], changedcount
-		new maxPlayers = get_maxplayers()
-		for (player = 1; player <= maxPlayers; player++)
+		for (player = 1; player <= MaxClients; player++)
 		{
 			// not connected
 			if (!is_user_connected(player))
@@ -178,6 +177,7 @@ public set_afk(id)
 		afkTime[id] = get_gametime() + get_pcvar_float(afkTimeLimit)
 		isAFK[id] = false
 		client_print_color(id, id, "^x04[AFK Manager]^x01 You now are free to ^x04play^x01!")
+
 		new name[32]
 		get_user_name(id, name, charsmax(name))
 		replace_all(name, charsmax(name), "(AFK)", "")
@@ -193,6 +193,7 @@ public set_afk(id)
 		afkTime[id] = get_gametime() + get_pcvar_float(afkTimeLimit)
 		isAFK[id] = true
 		client_print_color(id, id, "^x04[AFK Manager]^x01 You have set as^x04 AFK^x01!")
+
 		new name[32]
 		get_user_name(id, name, charsmax(name))
 		trim(name)
@@ -203,7 +204,7 @@ public set_afk(id)
 		client_print_color(id, id, "^x04[AFK Manager]^x01 Manual^x04 AFK^x01 is disabled!")
 }
 
-public client_PostThink(id)
+public client_PreThink(id)
 {
 	if (!isAFK[id])
 	{
@@ -211,13 +212,20 @@ public client_PostThink(id)
 			afkTime[id] = get_gametime() + get_pcvar_float(afkTimeLimit)
 		else if (afkTime[id] < get_gametime() && !is_user_bot(id))
 		{
-			isAFK[id] = true
-			client_print_color(id, id, "^x04[AFK Manager]^x01 You have set as^x04 AFK^x01!")
-			new name[32]
-			get_user_name(id, name, charsmax(name))
-			trim(name)
-			format(name, charsmax(name), "%s (AFK)", name)
-			set_user_info(id, "name", name)
+			new team = get_user_team(id)
+			if (team == 0 || team == 1) // valid teams only, ct and tr
+			{
+				isAFK[id] = true
+				client_print_color(id, id, "^x04[AFK Manager]^x01 You have set as^x04 AFK^x01!")
+
+				new name[32]
+				get_user_name(id, name, charsmax(name))
+				trim(name)
+				format(name, charsmax(name), "%s (AFK)", name)
+				set_user_info(id, "name", name)
+			}
+			else
+				afkTime[id] = get_gametime() + get_pcvar_float(afkTimeLimit)
 		}
 	}
 #if CONTROL_PLAYERS
@@ -246,17 +254,21 @@ stock bot_base(const id)
 	{
 		m_isSlowThink[id] = true
 		find_players(id)
+
 		new r, g, b
 		r = random_num(0, 255)
 		g = random_num(0, 255)
 		b = random_num(0, 255)
+
 		new name[128], ip[32]
 		get_user_name(0, name, charsmax(name))
 		get_user_ip(0, ip, charsmax(ip))
 		set_hudmessage(r, g, b, -1.0, 0.35, 0, 0.0, 0.5)
 		show_hudmessage(id, "Now you are AFK!^nType !afk to chat for disable AFK mode^n^n^n^n^n^n^n^n^n^n^n%s^n%s", name, ip)
+
 		if (!m_hasEnemiesNear[id])
 			check_reload(id)
+
 		m_isSlowThinkTimer[id] = get_gametime() + 0.5
 	}
 	else
@@ -275,7 +287,6 @@ stock bot_base(const id)
 			new clipAmmo
 			new backpackAmmo
 			new currentWeapon = get_user_weapon(id, clipAmmo, backpackAmmo)
-
 			if (currentWeapon == CSW_KNIFE)
 			{
 				if (m_enemyDistance[id] < 160.0)
@@ -397,8 +408,8 @@ stock find_players(const id)
 	pev(id, pev_view_ofs, myViewOFS)
 	xs_vec_add(myOrigin, myViewOFS, myOrigin)
 
-	new i, maxPlayers = get_maxplayers() + 1
-	for (i = 1; i < maxPlayers; i++)
+	new i
+	for (i = 1; i <= MaxClients; i++)
 	{
 		if (i == id)
 			continue
@@ -700,7 +711,7 @@ stock check_reload(const id)
 stock Float:max_speed(const id)
 {
 	if (get_user_button(id) & IN_DUCK)
-		return get_user_maxspeed(id) * 0.5
+		return get_user_maxspeed(id) * 0.51
 
 	return get_user_maxspeed(id)
 }

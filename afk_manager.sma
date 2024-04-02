@@ -109,7 +109,8 @@ stock client_print_color(target, sender, const message[], any:...)
 		new cache = get_user_msgid("SayText")
 		new player
 		new changed[5], changedcount
-		for (player = 1; player <= MaxClients; player++)
+		new maxPlayers = get_maxplayers() + 1
+		for (player = 1; player < maxPlayers; player++)
 		{
 			// not connected
 			if (!is_user_connected(player))
@@ -408,8 +409,8 @@ stock find_players(const id)
 	pev(id, pev_view_ofs, myViewOFS)
 	xs_vec_add(myOrigin, myViewOFS, myOrigin)
 
-	new i
-	for (i = 1; i <= MaxClients; i++)
+	new i, maxPlayers = get_maxplayers() + 1
+	for (i = 1; i < maxPlayers; i++)
 	{
 		if (i == id)
 			continue

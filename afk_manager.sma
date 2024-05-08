@@ -31,7 +31,7 @@ public plugin_init()
 	register_clcmd("say /afk", "set_afk")
 	afkTimeLimit = register_cvar("amx_afk_manager_time", "60.0")
 #if CONTROL_PLAYERS
-	afkAimSpeed = register_cvar("amx_afk_manager_aim_speed", "24.0")
+	afkAimSpeed = register_cvar("amx_afk_manager_aim_speed", "32.0")
 	afkManual = register_cvar("amx_afk_manager_manual_afk", "1")
 	RegisterHam(Ham_Spawn, "player", "player_spawn", 1)
 #endif

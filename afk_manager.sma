@@ -19,8 +19,8 @@ new Float:afkTime[33]
 new afkManual
 new m_isSlowThink[33]
 new afkAimSpeed
-//new bool:isZombiePlague = false
-//native zp_has_round_started()
+new bool:isZombiePlague = false
+native zp_has_round_started()
 #endif
 new afkTimeLimit
 public plugin_init()
@@ -47,9 +47,11 @@ public plugin_natives()
 
 public plugin_cfg()
 {
-	//if (cvar_exists("zp_version"))
-	//	isZombiePlague = true
 #if CONTROL_PLAYERS
+	if (cvar_exists("zp_version"))
+		isZombiePlague = true
+	else
+		isZombiePlague = false
 	set_cvar_num("mp_autokick", 0)
 	set_cvar_num("mp_autokick_timeout", -1)
 #endif
@@ -396,7 +398,7 @@ stock find_players(const id)
 		if (!is_user_alive(i))
 			continue
 
-		if (get_user_team(i) == m_team) // || (isZombiePlague && zp_has_round_started() != 1))
+		if (get_user_team(i) == m_team || (isZombiePlague && zp_has_round_started() != 1))
 		{
 			if (isAFK[i])
 				continue
